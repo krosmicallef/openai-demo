@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>Ask API UI</title>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
     <style>
         body {
           font-family: Arial, sans-serif;
@@ -20,11 +18,12 @@
           border-radius: 8px;
           box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        input {
-          width: 96%;
+        input, select {
+          width: 100%;
           padding: 10px;
           margin-top: 10px;
           font-size: 16px;
+          box-sizing: border-box;
         }
         button {
           width: 100%;
@@ -44,68 +43,84 @@
           padding: 10px;
           background: #e9ecef;
           border-radius: 5px;
+          display: none;
         }
     </style>
 </head>
+
 <body>
-<div id="root"></div>
+<div class="container">
+    <h2>Ask a Question</h2>
 
-<script type="text/babel">
-    function App() {
-      const [question, setQuestion] = React.useState("");
-      const [answer, setAnswer] = React.useState("");
-      const [loading, setLoading] = React.useState(false);
+    <form id="askForm">
+        <label>Model Provider:</label>
+        <select id="provider">
+            <option value="openai">OpenAI</option>
+            <option value="gemini">Gemini</option>
+        </select>
 
-      const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setAnswer("");
+        <input
+                type="text"
+                id="question"
+                placeholder="Enter your question..."
+                required
+        />
 
-        try {
-          const response = await fetch("http://localhost:8080/api/ask", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ question })
-          });
+        <button type="submit" id="submitBtn">Ask</button>
+    </form>
 
-          const data = await response.json();
-          setAnswer(data.answer);
-        } catch (error) {
-          setAnswer("Error: " + error.message);
-        } finally {
-          setLoading(false);
-        }
-      };
+    <div class="answer" id="answerBox">
+        <strong id="answerTitle"></strong>
+        <p id="answerText"></p>
+    </div>
+</div>
 
-      return (
-        <div className="container">
-          <h2>Ask a Question</h2>
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              placeholder="Enter your question..."
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              required
-            />
-            <button type="submit" disabled={loading}>
-              {loading ? "Asking..." : "Ask"}
-            </button>
-          </form>
+<script>
+    const form = document.getElementById("askForm");
+    const questionInput = document.getElementById("question");
+    const providerSelect = document.getElementById("provider");
+    const answerBox = document.getElementById("answerBox");
+    const answerText = document.getElementById("answerText");
+    const answerTitle = document.getElementById("answerTitle");
+    const submitBtn = document.getElementById("submitBtn");
 
-          {answer && (
-            <div className="answer">
-              <strong>Answer:</strong>
-              <p>{answer}</p>
-            </div>
-          )}
-        </div>
-      );
-    }
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+      const question = questionInput.value;
+      const provider = providerSelect.value;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Asking...";
+      answerBox.style.display = "none";
+
+      try {
+        const response = await fetch("http://localhost:8080/api/ask", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            question: question,
+            provider: provider
+          })
+        });
+
+        const data = await response.json();
+
+        answerTitle.textContent = `Answer (${provider}):`;
+        answerText.textContent = data.answer;
+        answerBox.style.display = "block";
+
+      } catch (error) {
+        answerTitle.textContent = "Error:";
+        answerText.textContent = error.message;
+        answerBox.style.display = "block";
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Ask";
+      }
+    });
 </script>
 </body>
 </html>

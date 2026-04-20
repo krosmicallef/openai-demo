@@ -10,3 +10,8 @@ openai:
   api-key: ADD_KEY
   url: https://api.openai.com/v1/chat/completions
   model: gpt-4o-mini
+
+gemini:
+    api-key: ADD_KEY
+    url: https://generativelanguage.googleapis.com/v1beta/openai/chat/completions
+    model: gemini-2.5-flash

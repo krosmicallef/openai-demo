@@ -1,25 +1,26 @@
 package com.christophermicallef.openaidemo.config;
 
-import io.netty.resolver.DefaultAddressResolverGroup;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.netty.http.client.HttpClient;
 
 @Configuration
 public class WebClientConfig {
-//
-//    @Bean
-//    public HttpClient httpClient() {
-//        return HttpClient.create()
-//                .resolver(DefaultAddressResolverGroup.INSTANCE);
-//    }
 
     @Bean
-    public WebClient webClient(@Value("${openai.api-key}") String apiKey) {
+    public WebClient webClientOpenAi(@Value("${openai.api-key}") String apiKey, @Value("${openai.url}") String apiUrl) {
         return WebClient.builder()
-                .baseUrl("https://api.openai.com")
+                .baseUrl(apiUrl)
+                .defaultHeader("Authorization", "Bearer " + apiKey)
+                .defaultHeader("Content-Type", "application/json")
+                .build();
+    }
+
+    @Bean
+    public WebClient webClientGemini(@Value("${gemini.api-key}") String apiKey, @Value("${gemini.url}") String apiUrl) {
+        return WebClient.builder()
+                .baseUrl(apiUrl)
                 .defaultHeader("Authorization", "Bearer " + apiKey)
                 .defaultHeader("Content-Type", "application/json")
                 .build();

@@ -1,4 +1,5 @@
 package com.christophermicallef.openaidemo.service;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -8,15 +9,15 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class OpenAiService implements IAiService {
+public class GeminiAiService implements IAiService {
 
     public static final String NO_MARKUP = " Respond using plain text only. Do not use Markdown, HTML, code blocks, or any formatting. Return only raw text.";
     private final WebClient webClient;
     private final String model;
 
-    public OpenAiService(WebClient webClientOpenAi,
-                         @Value("${openai.model}") String model) {
-        this.webClient = webClientOpenAi;
+    public GeminiAiService(WebClient webClientGemini,
+                         @Value("${gemini.model}") String model) {
+        this.webClient = webClientGemini;
         this.model = model;
     }
 
