@@ -5,6 +5,7 @@ import com.christophermicallef.openaidemo.model.AskResponse;
 import com.christophermicallef.openaidemo.service.GeminiAiService;
 import com.christophermicallef.openaidemo.service.OpenAiSDKService;
 import com.christophermicallef.openaidemo.service.OpenAiService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -32,6 +33,12 @@ public class AskController {
             case "openaisdk" -> askResponse = openAiSDKService.ask(request.getQuestion());
             default -> throw new IllegalArgumentException("Unsupported provider: " + request.getProvider());
         }
+        return askResponse.map(AskResponse::new);
+    }
+
+    @PostMapping("/askWeather")
+    public Mono<AskResponse> askWeather(@RequestBody AskRequest request) throws JsonProcessingException {
+        Mono<String> askResponse = openAiSDKService.askForWeather(request.getQuestion());
         return askResponse.map(AskResponse::new);
     }
 }
